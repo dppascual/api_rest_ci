@@ -1,0 +1,8 @@
+.DS_Store
+.git
+.*.swp
+LICENSE
+VERSION
+README.md
+Makefile
+*_venv

@@ -1,0 +1,63 @@
+version: "3"
+services:
+    proxy:
+        image: dppascual/nginx-proxy:0.1
+        ports:
+            - "80:80"
+        deploy:
+            mode: global
+            update_config:
+                parallelism: 2
+                delay: 10s
+                failure_action: pause
+                #restart-policy:
+                #    condition: on-failure
+                #    delay: 5s
+                #    max_attempts: 3
+                    #    window: 120s
+        networks:
+            - proxy
+    webapp:
+        image: dppascual/api-rest-ci:1.0
+        depends_on: 
+            - database
+        environment:
+            - SECRET=exampletest
+            - DATABASE_URL=postgres://webapp:Axzejt1348jfv@tasks.apikernos_database:5432/webapp
+            - APP_PORT=8080
+        deploy:
+            mode: replicated
+            replicas: 2
+            update_config:
+                parallelism: 1
+                delay: 10s
+                failure_action: pause
+                #            restart-policy:
+                #                condition: on-failure
+                #                delay: 5s
+                #                max_attempts: 3
+                #                window: 120s
+        networks:
+            - backend
+            - proxy
+    database:
+        image: dppascual/postgresql:9.6-02
+        environment:
+            - DB_USER=webapp:Axzejt1348jfv
+            - DB_NAME=webapp:webapp
+        deploy:
+            mode: replicated
+            replicas: 1
+            #restart-policy:
+            #    condition: on-failure
+            #    delay: 5s
+            #    max_attempts: 3
+            #    window: 120s
+        networks:
+            - backend
+
+networks:
+    proxy:
+        driver: overlay
+    backend:
+        driver: overlay
